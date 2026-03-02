@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: var(--pizza-text-primary);
+  --color-secondary: var(--pizza-text-secondary);
+  --color-accent: var(--pizza-accent);
+  --color-gold: var(--pizza-gold);
+  --color-dark: var(--pizza-dark);
+  --color-bg-primary: var(--pizza-bg-primary);
+  --color-bg-secondary: var(--pizza-bg-secondary);
+  --color-border: var(--pizza-border);
+
+  --font-serif: var(--font-playfair), serif;
+  --font-sans: var(--font-inter), sans-serif;
+}
+
+:root {
+  --pizza-bg-primary: #F7E7D6;
+  --pizza-bg-secondary: #FFFBF7;
+  --pizza-border: #E8D5C4;
+  --pizza-text-primary: #2A1410;
+  --pizza-text-secondary: #5C4A44;
+  --pizza-accent: #E63946;
+  --pizza-gold: #D4AF37;
+  --pizza-dark: #FDF8F3;
+}
+
+body {
+  background-color: var(--pizza-dark);
+  color: var(--pizza-text-primary);
+  overflow-x: hidden;
+}
+
+.pizza-gradient {
+  background: linear-gradient(135deg, #FDF8F3 0%, #F7E7D6 100%);
+}
+
+.pizza-accent-gradient {
+  background: linear-gradient(to right, #E63946, #C72C41);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--pizza-bg-primary);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--pizza-border);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--pizza-text-secondary);
+}
