@@ -3,6 +3,7 @@
 import React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
+import { StylizedText } from "./SectionDivider";
 
 const FEATURES = [
     {
@@ -68,7 +69,7 @@ export default function FeatureSection() {
                             key={feature.id}
                             initial={{ opacity: 0, y: 50 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-100px" }}
+                            viewport={{ once: true, margin: "-5%" }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
                             className={`flex flex-col md:flex-row items-center gap-12 ${feature.position === "right" ? "md:flex-row-reverse" : ""}`}
                         >
@@ -83,11 +84,13 @@ export default function FeatureSection() {
                             </div>
 
                             {/* Feature Text */}
-                            <div className={`flex flex-col gap-6 w-full md:w-1/2 ${feature.position === "right" ? "md:items-end md:text-right" : "md:items-start"}`}>
+                            <div className={`flex flex-col gap-2 w-full md:w-1/2 ${feature.position === "right" ? "md:items-end md:text-right" : "md:items-start"}`}>
                                 <span className="text-secondary font-serif text-3xl italic opacity-40">0{idx + 1}</span>
-                                <h3 className="text-4xl md:text-6xl font-serif text-primary leading-tight">{feature.title}</h3>
-                                <p className="text-xl text-secondary leading-relaxed font-sans max-w-md">{feature.description}</p>
-                                <div className={`h-1 w-24 bg-accent ${feature.position === "right" ? "ml-auto" : ""}`} />
+                                <h3 className="text-4xl md:text-6xl font-serif text-primary leading-tight mt-2 mb-9">
+                                    <StylizedText text={feature.title} />
+                                </h3>
+                                <p className="text-xl text-secondary leading-relaxed font-sans max-w-md" style={{ fontSize: "0.9375rem", lineHeight: 1.75 }}>{feature.description}</p>
+                                <div className={`h-1 w-24 bg-accent mt-6 ${feature.position === "right" ? "ml-auto" : ""}`} />
                             </div>
                         </motion.div>
                     ))}

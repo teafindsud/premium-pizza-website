@@ -1,0 +1,27 @@
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://172.18.176.1:3000
+
+✓ Starting...
+✓ Ready in 4s
+ GET / 200 in 3.9s (compile: 3.0s, render: 873ms)
+ HEAD / 200 in 352ms (compile: 13ms, render: 339ms)
+ GET / 200 in 432ms (compile: 10ms, render: 422ms)
+ GET / 200 in 308ms (compile: 25ms, render: 283ms)
+✓ Compiled in 447ms
+ GET / 200 in 980ms (compile: 249ms, render: 731ms)
+✓ Compiled in 1168ms
+ GET / 200 in 1734ms (compile: 407ms, render: 1326ms)
+✓ Compiled in 134ms
+ GET / 200 in 1172ms (compile: 227ms, render: 946ms)
+ GET / 200 in 2.7s (compile: 30ms, render: 2.7s)
+ GET / 200 in 1907ms (compile: 19ms, render: 1888ms)
+ GET / 200 in 766ms (compile: 19ms, render: 747ms)
+ GET /menu 200 in 1501ms (compile: 1254ms, render: 247ms)
+ GET / 200 in 124ms (compile: 27ms, render: 97ms)
+ GET /menu 200 in 264ms (compile: 10ms, render: 254ms)
+ GET /menu 200 in 1034ms (compile: 455ms, render: 579ms)
+ GET / 200 in 631ms (compile: 221ms, render: 410ms)
+ GET / 200 in 539ms (compile: 53ms, render: 486ms)
+ GET /menu 200 in 970ms (compile: 503ms, render: 467ms)
+ GET / 200 in 166ms (compile: 50ms, render: 116ms)

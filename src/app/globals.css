@@ -12,6 +12,7 @@
 
   --font-serif: var(--font-playfair), serif;
   --font-sans: var(--font-inter), sans-serif;
+  --font-cursive: var(--font-cursive), cursive;
 }
 
 :root {
@@ -23,6 +24,7 @@
   --pizza-accent: #E63946;
   --pizza-gold: #D4AF37;
   --pizza-dark: #FDF8F3;
+  --font-cursive: var(--font-cursive), cursive;
 }
 
 body {
@@ -30,6 +32,120 @@ body {
   color: var(--pizza-text-primary);
   overflow-x: hidden;
 }
+
+/* ─────────── PREMIUM TYPOGRAPHY ─────────── */
+
+h1 {
+  letter-spacing: -0.02em;
+  font-feature-settings: "liga" 1, "kern" 1;
+}
+
+h2 {
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  font-feature-settings: "liga" 1, "kern" 1;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  font-feature-settings: "liga" 1, "kern" 1;
+}
+
+p {
+  line-height: 1.75;
+  font-feature-settings: "kern" 1;
+}
+
+.font-serif {
+  font-feature-settings: "liga" 1, "kern" 1;
+}
+
+.font-sans {
+  font-feature-settings: "kern" 1;
+}
+
+/* ─────────── DECORATIVE DIVIDERS ─────────── */
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 24px;
+  width: 100%;
+  padding: 0 32px;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: "";
+  width: 40px;
+  height: 1px;
+  background: var(--pizza-gold);
+}
+
+.sub-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(to right, transparent, var(--pizza-border), transparent);
+  opacity: 0.6;
+}
+
+.label-accent {
+  display: block;
+  width: 28px;
+  height: 1.5px;
+  background: var(--pizza-gold);
+  margin: 0 auto 12px;
+}
+
+/* Label accent for left-aligned labels */
+.label-accent-left {
+  display: block;
+  width: 28px;
+  height: 1.5px;
+  background: var(--pizza-gold);
+  margin: 0 0 12px;
+}
+
+/* ─────────── PREMIUM HOVER EFFECTS ─────────── */
+
+/* Animated underline for nav links */
+.nav-link-hover {
+  position: relative;
+}
+
+.nav-link-hover::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.25s ease;
+}
+
+.nav-link-hover:hover::after {
+  width: 100%;
+}
+
+/* Premium button easing */
+.btn-premium {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Cursive ampersand styling */
+.ampersand-cursive {
+  font-family: var(--font-cursive), cursive;
+  font-style: italic;
+  font-size: 0.85em;
+}
+
+/* ─────────── EXISTING UTILITIES ─────────── */
 
 .pizza-gradient {
   background: linear-gradient(135deg, #FDF8F3 0%, #F7E7D6 100%);

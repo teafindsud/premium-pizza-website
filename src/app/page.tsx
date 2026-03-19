@@ -1,11 +1,21 @@
 import HeroCanvas from "@/components/HeroCanvas";
 import ProductSection from "@/components/ProductSection";
 import FeatureSection from "@/components/FeatureSection";
+import TestimonialSection from "@/components/TestimonialSection";
 import FinalCTA from "@/components/FinalCTA";
 
 export default function Home() {
   return (
     <main className="relative bg-dark selection:bg-accent selection:text-white">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @media (max-width: 768px) {
+            main {
+              background-color: #FDF8F3 !important;
+            }
+          }
+        `
+      }} />
       {/* Hero Section */}
       <HeroCanvas />
 
@@ -13,6 +23,7 @@ export default function Home() {
       <div className="relative z-10">
         <ProductSection />
         <FeatureSection />
+        <TestimonialSection />
         <FinalCTA />
       </div>
 

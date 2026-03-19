@@ -2,14 +2,14 @@
 
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useScroll, useTransform, useSpring, motion, useVelocity } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import Link from "next/link";
 
 const TOTAL_FRAMES = 20;
 
 const Section = ({ children, opacity, y }: { children: React.ReactNode, opacity: any, y?: any }) => (
     <motion.div
         style={{ opacity, y }}
-        className="max-w-2xl absolute h-fit flex flex-col items-start justify-start"
+        className="absolute left-[20px] md:left-[80px] top-32 md:top-40 pr-[20px] md:pr-0 w-full max-w-[calc(100vw-40px)] md:max-w-2xl h-fit flex flex-col items-start justify-start"
     >
         {children}
     </motion.div>
@@ -20,6 +20,7 @@ export default function HeroCanvas() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [images, setImages] = useState<HTMLImageElement[]>([]);
     const [loadProgress, setLoadProgress] = useState(0);
+    const [mobileHeroHeight, setMobileHeroHeight] = useState<number | null>(null);
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -82,16 +83,31 @@ export default function HeroCanvas() {
         const context = canvas.getContext("2d");
         if (!context) return;
 
+        const ZOOM_OUT = 0.50;
+
         const render = () => {
             const index = Math.round(frameIndex.get());
             const img = images[index] || images[0];
 
-            const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-            const x = (canvas.width / 2) - (img.width / 2) * scale;
-            const y = (canvas.height / 2) - (img.height / 2) * scale;
+            const isMobile = window.innerWidth <= 768;
 
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(img, x, y, img.width * scale, img.height * scale);
+            if (isMobile) {
+                // On mobile: scale by width so full frame width is visible,
+                // then divide by zoomOutFactor to zoom out slightly.
+                const scale = (canvas.width / img.width) / ZOOM_OUT;
+                const x = (canvas.width - img.width * scale) / 2;  // centers tiny horizontal offset
+                const y = 0;  // top-aligned
+                context.fillStyle = '#1a0e0a';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(img, x, y, img.width * scale, img.height * scale);
+            } else {
+                // Desktop: keep original cover-fit behavior exactly as before
+                const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+                const x = (canvas.width / 2) - (img.width / 2) * scale;
+                const y = (canvas.height / 2) - (img.height / 2) * scale;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(img, x, y, img.width * scale, img.height * scale);
+            }
         };
 
         const unsubscribe = frameIndex.on("change", render);
@@ -100,8 +116,20 @@ export default function HeroCanvas() {
         render();
 
         const handleResize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const isMobileResize = window.innerWidth <= 768;
+            if (isMobileResize) {
+                const img = images[0];
+                const w = window.innerWidth;
+                const scale = (w / img.width) / ZOOM_OUT;
+                const h = Math.round(img.height * scale);
+                canvas.width = w;
+                canvas.height = h;
+                setMobileHeroHeight(h);
+            } else {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                setMobileHeroHeight(null);
+            }
             render();
         };
 
@@ -115,7 +143,12 @@ export default function HeroCanvas() {
     }, [images, frameIndex]);
 
     return (
-        <div ref={containerRef} className="relative h-[1000px] w-full bg-dark overflow-clip">
+        <div
+            ref={containerRef}
+            className="relative w-full bg-transparent md:bg-dark overflow-clip md:h-[1000px]"
+            style={mobileHeroHeight ? { height: `${mobileHeroHeight}px` } : undefined}
+            data-hero-wrapper
+        >
             {/* Loading Progress */}
             {loadProgress < 100 && (
                 <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-dark text-primary">
@@ -131,10 +164,36 @@ export default function HeroCanvas() {
             )}
 
             {/* Sticky Canvas Container */}
-            <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 z-0 h-full md:sticky md:top-0 md:h-screen overflow-hidden">
+                {/* Aggressive cache-busting style injection */}
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                        @media (max-width: 768px) {
+                            #pizza-canvas {
+                                transform: none !important;
+                                width: 100% !important;
+                                height: 100% !important;
+                                max-width: 100vw !important;
+                                object-fit: cover !important;
+                                display: block !important;
+                            }
+                            [data-hero-wrapper] {
+                                background: transparent !important;
+                                margin-top: 0 !important;
+                                padding-top: 0 !important;
+                            }
+                            [data-hero-wrapper] > div:first-child {
+                                top: 0 !important;
+                                margin-top: 0 !important;
+                            }
+                        }
+                    `
+                }} />
+
                 <canvas
+                    id="pizza-canvas"
                     ref={canvasRef}
-                    className="w-full h-full object-cover opacity-95"
+                    className="absolute inset-0 w-full h-full object-cover opacity-95"
                     style={{
                         filter: "contrast(1.05) saturate(1.1)",
                     }}
@@ -155,45 +214,39 @@ export default function HeroCanvas() {
                 </motion.div>
 
                 {/* Hero Text Sections */}
-                <div className="absolute inset-0 z-10 pointer-events-none px-8 md:px-24 pt-32 md:pt-40 flex flex-col items-start justify-start">
+                <div className="absolute inset-0 z-10 pointer-events-none">
                     <Section opacity={text1Opacity} y={text1Y}>
-                        <h1 className="text-7xl md:text-9xl font-serif mb-6 text-primary leading-tight">
+                        <h1 className="text-[clamp(2.8rem,9vw,4.5rem)] md:text-9xl font-serif mb-6 text-[#FDF8F3] leading-[1.1] md:leading-tight">
                             Artisan <br /> Pizza
                         </h1>
-                        <p className="text-xl md:text-2xl text-secondary font-sans tracking-wide">
+                        <p className="text-[1rem] md:text-2xl text-[#F7E7D6] font-sans tracking-wide">
                             Hand-stretched. Wood-fired. Perfected.
                         </p>
                     </Section>
 
                     <Section opacity={text3Opacity} y={text3Y}>
-                        <h2 className="text-7xl md:text-9xl font-serif mb-6 text-primary leading-tight">
+                        <h2 className="text-[clamp(2.8rem,9vw,4.5rem)] md:text-9xl font-serif mb-6 text-[#FDF8F3] leading-[1.1] md:leading-tight">
                             Fired to <br /> Perfection
                         </h2>
-                        <p className="text-xl md:text-2xl text-secondary mb-10 font-sans tracking-wide">
+                        <p className="text-[1rem] md:text-2xl text-[#F7E7D6] mb-10 font-sans tracking-wide">
                             Tradition meets modern craft.
                         </p>
-                        <motion.button
-                            whileHover={{
-                                scale: 1.05,
-                                boxShadow: "0 0 40px rgba(230, 57, 70, 0.6)",
-                                backgroundColor: "#FDE8D0",
-                                color: "#140A07"
-                            }}
-                            whileTap={{ scale: 0.95 }}
-                            className="pointer-events-auto px-10 py-5 bg-red-gradient text-white text-lg font-sans font-semibold rounded-full flex items-center gap-3 shadow-lg shadow-accent/20 transition-colors duration-300"
-                        >
-                            Explore Menu <ChevronDown className="w-5 h-5" />
-                        </motion.button>
+                        <Link href="/menu">
+                            <motion.button
+                                whileHover={{
+                                    scale: 1.05,
+                                    boxShadow: "0 0 40px rgba(230, 57, 70, 0.6)",
+                                    backgroundColor: "#FDE8D0",
+                                    color: "#140A07"
+                                }}
+                                whileTap={{ scale: 0.95 }}
+                                className="pointer-events-auto px-10 py-5 bg-red-gradient text-white text-lg font-sans font-semibold rounded-full shadow-lg shadow-accent/20 transition-colors duration-300 cursor-pointer"
+                            >
+                                Explore Menu
+                            </motion.button>
+                        </Link>
                     </Section>
                 </div>
-
-                {/* Scroll Indicator */}
-                <motion.div
-                    style={{ opacity: useTransform(scrollYProgress, [0, 0.05], [1, 0]) }}
-                    className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-                >
-                    <div className="w-[1px] h-16 bg-gradient-to-b from-accent to-transparent" />
-                </motion.div>
             </div>
         </div>
     );
