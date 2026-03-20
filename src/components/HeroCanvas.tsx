@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useScroll, useTransform, useSpring, motion, useVelocity } from "framer-motion";
 import Link from "next/link";
 
 const TOTAL_FRAMES = 20;
+const ZOOM_OUT = 0.80; // Fix #5: was 0.50, which doubled canvas height unnecessarily
 
 const Section = ({ children, opacity, y }: { children: React.ReactNode, opacity: any, y?: any }) => (
     <motion.div
@@ -30,7 +31,7 @@ export default function HeroCanvas() {
     const scrollVelocity = useVelocity(scrollYProgress);
     const smoothVelocity = useSpring(scrollVelocity, {
         stiffness: 100,
-        damping: 30
+        damping: 30,
     });
 
     const frameIndex = useSpring(
@@ -43,18 +44,14 @@ export default function HeroCanvas() {
         }
     );
 
-    // Smooth scroll progress for text transitions
     const smoothProgress = useSpring(scrollYProgress, {
         stiffness: 70,
         damping: 30,
-        restDelta: 0.001
+        restDelta: 0.001,
     });
 
-    // Text opacity transitions
     const text1Opacity = useTransform(smoothProgress, [0, 0.4, 0.6], [1, 1, 0]);
     const text3Opacity = useTransform(smoothProgress, [0.45, 0.65, 1], [0, 1, 1]);
-
-    // Text vertical motion transitions
     const text1Y = useTransform(smoothProgress, [0.4, 0.6], [0, -40]);
     const text3Y = useTransform(smoothProgress, [0.45, 0.65], [40, 0]);
 
@@ -69,7 +66,7 @@ export default function HeroCanvas() {
                 loadedCount++;
                 setLoadProgress(Math.floor((loadedCount / TOTAL_FRAMES) * 100));
                 if (loadedCount === TOTAL_FRAMES) {
-                    setImages(loadedImages);
+                    setImages([...loadedImages]);
                 }
             };
             loadedImages[i] = img;
@@ -83,28 +80,24 @@ export default function HeroCanvas() {
         const context = canvas.getContext("2d");
         if (!context) return;
 
-        const ZOOM_OUT = 0.50;
-
         const render = () => {
             const index = Math.round(frameIndex.get());
             const img = images[index] || images[0];
+            if (!img || !img.complete) return; // guard against unloaded frames
 
             const isMobile = window.innerWidth <= 768;
 
             if (isMobile) {
-                // On mobile: scale by width so full frame width is visible,
-                // then divide by zoomOutFactor to zoom out slightly.
                 const scale = (canvas.width / img.width) / ZOOM_OUT;
-                const x = (canvas.width - img.width * scale) / 2;  // centers tiny horizontal offset
-                const y = 0;  // top-aligned
-                context.fillStyle = '#1a0e0a';
+                const x = (canvas.width - img.width * scale) / 2;
+                const y = 0;
+                context.fillStyle = "#1a0e0a";
                 context.fillRect(0, 0, canvas.width, canvas.height);
                 context.drawImage(img, x, y, img.width * scale, img.height * scale);
             } else {
-                // Desktop: keep original cover-fit behavior exactly as before
                 const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-                const x = (canvas.width / 2) - (img.width / 2) * scale;
-                const y = (canvas.height / 2) - (img.height / 2) * scale;
+                const x = canvas.width / 2 - (img.width / 2) * scale;
+                const y = canvas.height / 2 - (img.height / 2) * scale;
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 context.drawImage(img, x, y, img.width * scale, img.height * scale);
             }
@@ -112,29 +105,33 @@ export default function HeroCanvas() {
 
         const unsubscribe = frameIndex.on("change", render);
 
-        // Initial render
-        render();
-
+        // Fix #1 & #2: guard against missing image, set canvas dimensions BEFORE render()
         const handleResize = () => {
+            const img = images[0];
+            if (!img || !img.complete) return; // Fix #1: guard against undefined/unloaded
+
             const isMobileResize = window.innerWidth <= 768;
+
             if (isMobileResize) {
-                const img = images[0];
                 const w = window.innerWidth;
                 const scale = (w / img.width) / ZOOM_OUT;
                 const h = Math.round(img.height * scale);
+                // Fix #2: assign dimensions BEFORE calling render()
                 canvas.width = w;
                 canvas.height = h;
                 setMobileHeroHeight(h);
             } else {
+                // Fix #2: assign dimensions BEFORE calling render()
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 setMobileHeroHeight(null);
             }
-            render();
+
+            render(); // now always called after canvas dimensions are correct
         };
 
         window.addEventListener("resize", handleResize);
-        handleResize();
+        handleResize(); // initial sizing + render
 
         return () => {
             unsubscribe();
@@ -165,51 +162,37 @@ export default function HeroCanvas() {
 
             {/* Sticky Canvas Container */}
             <div className="absolute inset-0 z-0 h-full md:sticky md:top-0 md:h-screen overflow-hidden">
-                {/* Aggressive cache-busting style injection */}
-                <style dangerouslySetInnerHTML={{
-                    __html: `
-                        @media (max-width: 768px) {
-                            #pizza-canvas {
-                                transform: none !important;
-                                width: 100% !important;
-                                height: 100% !important;
-                                max-width: 100vw !important;
-                                object-fit: cover !important;
-                                display: block !important;
-                            }
-                            [data-hero-wrapper] {
-                                background: transparent !important;
-                                margin-top: 0 !important;
-                                padding-top: 0 !important;
-                            }
-                            [data-hero-wrapper] > div:first-child {
-                                top: 0 !important;
-                                margin-top: 0 !important;
-                            }
-                        }
-                    `
-                }} />
+                {/*
+                    Fix #3: Removed the injected <style> block entirely.
+                    - `object-fit: cover` on <canvas> is a no-op (Fix #3).
+                    - Forcing `height: 100%` via CSS fights the JS-controlled
+                      canvas.height drawing buffer and causes blurry/stretched
+                      frames on mobile (Fix #4).
+                    The canvas dimensions are now fully managed by JS in handleResize.
+                */}
 
                 <canvas
                     id="pizza-canvas"
                     ref={canvasRef}
-                    className="absolute inset-0 w-full h-full object-cover opacity-95"
+                    // Fix #3: removed `object-fit: cover` — has no effect on <canvas>
+                    // Fix #4: removed forced CSS height; canvas size is set via JS only
+                    className="absolute inset-0 opacity-95"
                     style={{
                         filter: "contrast(1.05) saturate(1.1)",
+                        display: "block",
                     }}
                 />
 
                 {/* Soft Light Overlay */}
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/10 via-transparent to-bg-primary/20" />
 
-                {/* Floating Particles/Steam using motion.div */}
+                {/* Floating Particles/Steam */}
                 <motion.div
                     className="absolute inset-0 pointer-events-none opacity-10"
                     style={{
                         y: useTransform(smoothVelocity, [-1, 1], [50, -50]),
                     }}
                 >
-                    {/* We can simulate steam with SVG filters or just subtle overlays */}
                     <div className="w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20" />
                 </motion.div>
 
@@ -237,7 +220,7 @@ export default function HeroCanvas() {
                                     scale: 1.05,
                                     boxShadow: "0 0 40px rgba(230, 57, 70, 0.6)",
                                     backgroundColor: "#FDE8D0",
-                                    color: "#140A07"
+                                    color: "#140A07",
                                 }}
                                 whileTap={{ scale: 0.95 }}
                                 className="pointer-events-auto px-10 py-5 bg-red-gradient text-white text-lg font-sans font-semibold rounded-full shadow-lg shadow-accent/20 transition-colors duration-300 cursor-pointer"

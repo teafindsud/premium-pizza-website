@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -20,8 +20,23 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
-  title: "Pizza Galeria - Premium Artisan Pizza",
-  description: "Experience the art of artisanal pizza at Pizza Galeria. Wood-fired, hand-stretched, and locally sourced. Every slice tells a story.",
+  title: "Premium Pizza — Artisan Wood-Fired Pizza",
+  description:
+    "Hand-stretched, wood-fired artisan pizzas crafted with premium ingredients. Order now or explore our menu.",
+  keywords: ["pizza", "artisan pizza", "wood-fired", "premium pizza"],
+  openGraph: {
+    title: "Premium Pizza — Artisan Wood-Fired Pizza",
+    description:
+      "Hand-stretched, wood-fired artisan pizzas crafted with premium ingredients.",
+    type: "website",
+    siteName: "Premium Pizza",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#140A07",
 };
 
 export default function RootLayout({
