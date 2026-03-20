@@ -23,12 +23,17 @@ export default function HeroCanvas() {
     const [loadProgress, setLoadProgress] = useState(0);
     const [mobileHeroHeight, setMobileHeroHeight] = useState<number | null>(null);
 
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start start", "end end"],
+    const { scrollY } = useScroll();
+    const scrollYProgress = useTransform(scrollY, (val) => {
+        if (!containerRef.current) return 0;
+        const rect = containerRef.current.getBoundingClientRect();
+        const containerTop = rect.top + val;
+        const containerHeight = rect.height;
+        if (containerHeight === 0) return 0;
+        const progress = val / (containerTop + containerHeight);
+        return Math.min(Math.max(progress, 0), 1);
     });
-
-    const scrollVelocity = useVelocity(scrollYProgress);
+    const scrollVelocity = useVelocity(scrollY);
     const smoothVelocity = useSpring(scrollVelocity, {
         stiffness: 100,
         damping: 30,
@@ -142,7 +147,7 @@ export default function HeroCanvas() {
     return (
         <div
             ref={containerRef}
-            className="relative w-full bg-transparent md:bg-dark overflow-clip md:h-[1000px]"
+            className="relative w-full bg-dark overflow-clip md:h-[1000px]"
             style={mobileHeroHeight ? { height: `${mobileHeroHeight}px` } : undefined}
             data-hero-wrapper
         >
@@ -176,10 +181,13 @@ export default function HeroCanvas() {
                     ref={canvasRef}
                     // Fix #3: removed `object-fit: cover` — has no effect on <canvas>
                     // Fix #4: removed forced CSS height; canvas size is set via JS only
-                    className="absolute inset-0 opacity-95"
+                    className="opacity-95"
                     style={{
                         filter: "contrast(1.05) saturate(1.1)",
                         display: "block",
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover"
                     }}
                 />
 
