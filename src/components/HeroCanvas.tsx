@@ -30,7 +30,9 @@ export default function HeroCanvas() {
         const containerTop = rect.top + val;
         const containerHeight = rect.height;
         if (containerHeight === 0) return 0;
-        const progress = val / (containerTop + containerHeight);
+        const isMobile = window.innerWidth <= 768;
+        const rawProgress = val / (containerTop + containerHeight);
+        const progress = isMobile ? rawProgress * 8 : rawProgress;
         return Math.min(Math.max(progress, 0), 1);
     });
     const scrollVelocity = useVelocity(scrollY);
