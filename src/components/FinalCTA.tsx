@@ -18,16 +18,16 @@ export default function FinalCTA() {
                     transition={{ duration: 0.8 }}
                     className="flex flex-col items-center"
                 >
-                    <span className="text-[#E63946] tracking-[0.4em] font-sans font-bold uppercase text-sm block mb-10">Limited Availability</span>
-                    <h2 className="text-6xl md:text-9xl font-serif text-[#FDE8D0] leading-none mb-10">Find Your<br />Perfect Slice</h2>
-                    <p className="text-xl md:text-3xl text-[#C9A98D] leading-relaxed font-sans max-w-2xl mb-16 opacity-80 italic">
-                        "From classic Margherita to bold creations — every bite tells a story."
+                    <span className="text-[#E63946] tracking-[0.2em] font-sans font-medium uppercase text-[11px] block mb-10">Limited Availability</span>
+                    <h2 className="text-6xl md:text-9xl font-serif text-[#FDE8D0] leading-[1.15] mb-10">Find Your<br />Perfect Slice</h2>
+                    <p className="text-xl md:text-3xl text-[#C9A98D] leading-relaxed font-sans max-w-2xl mb-16 opacity-80 italic" style={{ fontSize: "0.9375rem", lineHeight: 1.75 }}>
+                        “From classic Margherita to bold creations — every bite tells a story.”
                     </p>
 
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="group px-12 py-6 bg-red-gradient text-white text-xl font-sans font-bold rounded-full relative overflow-hidden shadow-2xl transition-all hover:shadow-accent/40"
+                        className="group relative px-12 py-6 bg-red-gradient text-white text-xl font-sans font-bold rounded-full relative overflow-hidden shadow-2xl btn-premium hover:shadow-accent/40"
                     >
                         <span className="relative z-10 tracking-[0.1em] uppercase">Order Now</span>
                         <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 transition-all duration-300 group-hover:h-full" />

@@ -1,5 +1,3 @@
-import type { Config } from "tailwindcss";
-
 export default {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -21,6 +19,7 @@ export default {
       fontFamily: {
         serif: ["var(--font-playfair)", "serif"],
         sans: ["var(--font-inter)", "sans-serif"],
+        cursive: ["var(--font-cursive)", "cursive"],
       },
       backgroundImage: {
         "pizza-gradient-135": "linear-gradient(135deg, #2A1410 0%, #140A07 100%)",
@@ -29,4 +28,4 @@ export default {
     },
   },
   plugins: [],
-} satisfies Config;
+};
